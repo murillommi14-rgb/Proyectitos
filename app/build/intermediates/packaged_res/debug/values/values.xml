@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="colorAccent">#03DAC5</color>
+    <color name="colorPrimary">#6200EE</color>
+    <color name="colorPrimaryDark">#3700B3</color>
+    <color name="white">#FFFFFFFF</color>
+    <string name="app_name">AppIoT</string>
+    <string name="bienvenido">Bienvenido a AppIoT</string>
+    <string name="campos_vacios">Por favor, completa todos los campos</string>
+    <string name="clave">Clave</string>
+    <string name="clave_enviada">Clave enviada a tu correo</string>
+    <string name="claves_no_coinciden">Las claves no coinciden</string>
+    <string name="confirmar_clave">Confirmar Clave</string>
+    <string name="crear">Crear</string>
+    <string name="cuenta_creada">Cuenta creada exitosamente</string>
+    <string name="email">Correo Electrónico</string>
+    <string name="enviar">Enviar</string>
+    <string name="error">Error</string>
+    <string name="ingresar">Ingresar</string>
+    <string name="login">Iniciar Sesión</string>
+    <string name="login_exitoso">Inicio de sesión exitoso</string>
+    <string name="recuperar_clave">Recuperar Clave</string>
+    <string name="registrar_cuenta">Registrar Cuenta</string>
+    <string name="usuario">Usuario</string>
+    <style name="AppTheme" parent="Theme.AppCompat.Light">
+        
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+</resources>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <cloud-backup>
+        <!-- We recommend that you back up all app data, but you can choose to
+        exclude some files from backup here. -->
+    </cloud-backup>
+    <!--
+    The <device-transfer> section is used to specify which files should be
+    transferred from the old device to the new device when a user migrates to
+    a new device. You can specify what data to include and exclude by adding
+    <include> and <exclude> tags respectively. The domain of the files can be
+    either "file", "database", "sharedpref", "external", or "root".
+    -->
+    <device-transfer>
+    </device-transfer>
+</data-extraction-rules>

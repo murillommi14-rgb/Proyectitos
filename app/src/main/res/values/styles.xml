@@ -1,0 +1,15 @@
+<resources>
+
+    <!--
+    Tema base de la aplicación. Se utiliza la versión más fundamental y compatible
+    de AppCompat para garantizar que los componentes de la interfaz de usuario
+    funcionen correctamente sin interferencias de estilo.
+    -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light">
+        <!-- Colores principales de la aplicación. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+</resources>
