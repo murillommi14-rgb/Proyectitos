@@ -19,10 +19,10 @@
                     <button type="button" class="btn btn-secondary btn-sm me-1" data-bs-toggle="modal" data-bs-target="#bulkUploadModal">
                         <i class="fas fa-upload me-1"></i>Carga de Calificaciones
                     </button>
-                    <a class="btn btn-success btn-sm me-1" href="{% url 'export_excel' %}?ejercicio={{ filter_ejercicio }}&mercado={{ filter_mercado }}">
+                    <a class="btn btn-success btn-sm me-1" href="{% url 'calificaciones:export_excel' %}?ejercicio={{ filter_ejercicio }}&mercado={{ filter_mercado }}">
                         <i class="fas fa-file-excel me-1"></i>Exportar Excel
                     </a>
-                    <a class="btn btn-info btn-sm" href="{% url 'export_pdf' %}?ejercicio={{ filter_ejercicio }}&mercado={{ filter_mercado }}">
+                    <a class="btn btn-info btn-sm" href="{% url 'calificaciones:export_pdf' %}?ejercicio={{ filter_ejercicio }}&mercado={{ filter_mercado }}">
                         <i class="fas fa-file-pdf me-1"></i>Exportar PDF
                     </a>
                 </div>
@@ -63,7 +63,7 @@
                 </div>
                 <div class="col-md-3 d-flex align-items-end">
                     <button type="submit" class="btn btn-primary me-2">Filtrar</button>
-                    <a href="{% url 'calif_list' %}" class="btn btn-outline-secondary">Limpiar Filtros</a>
+                    <a href="{% url 'calificaciones:calif_list' %}" class="btn btn-outline-secondary">Limpiar Filtros</a>
                 </div>
             </form>
 
@@ -121,9 +121,9 @@
                                 <button type="button" class="btn btn-sm btn-warning me-1" title="Editar"onclick="openEditModal({{ c.pk }})">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <a href="{% url 'calif_eliminar' c.pk %}" class="btn btn-sm btn-danger" title="Eliminar">
-                                    <i class="fas fa-trash"></i>
-                                </a>
+                        <a href="{% url 'calificaciones:eliminar' c.pk %}" class="btn btn-sm btn-danger" title="Eliminar">
+                            <i class="fas fa-trash"></i>
+                        </a>
                             </td>
                         </tr>
                     {% empty %}
@@ -173,9 +173,9 @@
                     <h5>Instrucciones para carga masiva:</h5>
                     <p>Para evitar errores, descarga la plantilla en el formato que prefieras y completa los datos manteniendo las columnas exactas.</p>
                     <p>
-                        <a href="{% url 'download_template_csv' %}" class="btn btn-outline-primary btn-sm me-2">Descargar Plantilla CSV</a>
-                        <a href="{% url 'download_template_xlsx' %}" class="btn btn-outline-success btn-sm me-2">Descargar Plantilla XLSX</a>
-                        <a href="{% url 'download_template_pdf' %}" class="btn btn-outline-danger btn-sm">Descargar Plantilla PDF</a>
+                        <a href="{% url 'calificaciones:download_template_csv' %}" class="btn btn-outline-primary btn-sm me-2">Descargar Plantilla CSV</a>
+                        <a href="{% url 'calificaciones:download_template_xlsx' %}" class="btn btn-outline-success btn-sm me-2">Descargar Plantilla XLSX</a>
+                        <a href="{% url 'calificaciones:download_template_pdf' %}" class="btn btn-outline-danger btn-sm">Descargar Plantilla PDF</a>
                     </p>
                     <p><strong>Columnas requeridas:</strong> tipo_mercado, origen, ejercicio, mercado, instrumento, fecha, secuencia, numero_dividendo, tipo_sociedad, valor_historico, isfut_casilla, factor1, factor2, factor3, factor4, factor5, factor6, factor7, factor8, factor9, factor10, factor11, factor12, factor13, factor14, factor15, factor16, factor17, factor18, factor19, factor20, factor21, factor22, factor23, factor24, factor25, factor26, descripcion</p>
                     <p><strong>Columna opcional:</strong> estado (si no se incluye, se usa 'BORRADOR')</p>
@@ -221,7 +221,7 @@ document.getElementById('previewBtn').addEventListener('click', function() {
         formData.append('file', fileInput.files[i]);
     }
 
-    fetch('{% url "preview_bulk_upload" %}', {
+    fetch('{% url "calificaciones:preview_bulk_upload" %}', {
         method: 'POST',
         body: formData,
         headers: {
@@ -306,7 +306,7 @@ document.getElementById('uploadBtn').addEventListener('click', function() {
     uploadBtn.disabled = true;
     uploadBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Cargando...';
 
-    fetch('{% url "bulk_upload_ajax" %}', {
+    fetch('{% url "calificaciones:bulk_upload_ajax" %}', {
         method: 'POST',
         body: formData,
         headers: {

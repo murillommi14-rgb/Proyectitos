@@ -2,11 +2,13 @@
 from django.urls import path
 from .views import CalificacionListView, CalificacionCreateView, CalificacionUpdateView, CalificacionDeleteView, export_excel, export_pdf, BulkUploadView, download_template_csv, download_template_xlsx, download_template_pdf, preview_bulk_upload, bulk_upload_ajax
 
+app_name = 'calificaciones'
+
 urlpatterns = [
     path("", CalificacionListView.as_view(), name="calif_list"),
-    path("crear/", CalificacionCreateView.as_view(), name="calif_crear"),
-    path("<int:pk>/editar/", CalificacionUpdateView.as_view(), name="calif_editar"),
-    path("<int:pk>/eliminar/", CalificacionDeleteView.as_view(), name="calif_eliminar"),
+    path("crear/", CalificacionCreateView.as_view(), name="crear"),
+    path("<int:pk>/editar/", CalificacionUpdateView.as_view(), name="editar"),
+    path("<int:pk>/eliminar/", CalificacionDeleteView.as_view(), name="eliminar"),
     path("export/excel/", export_excel, name="export_excel"),
     path("export/pdf/", export_pdf, name="export_pdf"),
     path("carga-masiva/", BulkUploadView.as_view(), name="bulk_upload"),

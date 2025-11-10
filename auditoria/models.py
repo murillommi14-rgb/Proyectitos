@@ -24,4 +24,4 @@ class Auditoria(models.Model):
         ordering = ["-timestamp"]
 
     def __str__(self):
-        return f"[{self.timestamp:%Y-%m-%d %H:%M}] {self.accion} {self.modelo}#{self.objeto_id}"
+        return f"Auditoria: {self.accion} - {self.modelo} - {self.objeto_id}"

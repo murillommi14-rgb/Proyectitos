@@ -372,7 +372,7 @@ document.getElementById('crearCalificacionForm').addEventListener('submit', func
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Creando...';
 
-    fetch('{% url "calif_list" %}', {
+    fetch('{% url "calificaciones:calif_list" %}', {
         method: 'POST',
         body: formData,
         headers: {

@@ -253,7 +253,7 @@ def download_template_csv(request):
     headers = ["tipo_mercado", "origen", "mercado", "instrumento", "secuencia", "numero_dividendo", "tipo_sociedad", "fecha", "valor_historico", "ejercicio", "descripcion", "isfut_casilla", "factor_actualizacion", "factor1", "factor2", "factor3", "factor4", "factor5", "factor6", "factor7", "factor8", "factor9", "factor10", "factor11", "factor12", "factor13", "factor14", "factor15", "factor16", "factor17", "factor18", "factor19", "factor20", "factor21", "factor22", "factor23", "factor24", "factor25", "factor26", "estado"]
     writer.writerow(headers)
     # Agregar una fila de muestra
-    sample = ["ACCIONES", "NACIONAL", "Nacional", "Ejemplo Instrumento", 1, 1, "A", "2023-01-01", 1000.00, 2023, "Ejemplo Descripción", False, 1.0, 0.0385, 0.0385, 0.0385, 0.0385, 0.0385, 0.0385, 0.0385, 0.0385, 0.0385, 0.0385, 0.0385, 0.0385, 0.0385, 0.0385, 0.0385, 0.0385, 0.0385, 0.0385, 0.0385, 0.0385, 0.0385, 0.0385, 0.0385, 0.0385, 0.0385, 0.0385, 0.0385, "BORRADOR"]
+    sample = ["ACCIONES", "NACIONAL", "Nacional", "Ejemplo Instrumento", "1", "1", "A", "2023-01-01", "1000.00", "2023", "Ejemplo Descripción", "False", "1.0", "0.0385", "0.0385", "0.0385", "0.0385", "0.0385", "0.0385", "0.0385", "0.0385", "0.0385", "0.0385", "0.0385", "0.0385", "0.0385", "0.0385", "0.0385", "0.0385", "0.0385", "0.0385", "0.0385", "0.0385", "0.0385", "0.0385", "0.0385", "0.0385", "0.0385", "0.0385", "0.0385", "BORRADOR"]
     writer.writerow(sample)
 
     return response
@@ -454,6 +454,9 @@ def preview_bulk_upload(request):
                 previews.append({'filename': file.name, 'error': 'Formato de archivo no soportado'})
                 continue
 
+            # Convertir todas las columnas a string para evitar errores de tipo
+            df = df.astype(str)
+
             # Validar columnas requeridas
             required_columns = ['tipo_mercado', 'origen', 'mercado', 'instrumento', 'secuencia', 'numero_dividendo', 'tipo_sociedad', 'fecha', 'valor_historico', 'ejercicio', 'descripcion', 'isfut_casilla', 'factor_actualizacion', 'factor1', 'factor2', 'factor3', 'factor4', 'factor5', 'factor6', 'factor7', 'factor8', 'factor9', 'factor10', 'factor11', 'factor12', 'factor13', 'factor14', 'factor15', 'factor16', 'factor17', 'factor18', 'factor19', 'factor20', 'factor21', 'factor22', 'factor23', 'factor24', 'factor25', 'factor26', 'estado']
             if not all(col in df.columns for col in required_columns):
@@ -503,6 +506,9 @@ def bulk_upload_ajax(request):
             else:
                 errors.append(f"Formato de archivo no soportado para {file.name}. Usa CSV, XLSX o PDF.")
                 continue
+
+            # Convertir todas las columnas a string para evitar errores de tipo
+            df = df.astype(str)
 
             # Validar columnas requeridas
             required_columns = ['tipo_mercado', 'origen', 'mercado', 'instrumento', 'secuencia', 'numero_dividendo', 'tipo_sociedad', 'fecha', 'valor_historico', 'ejercicio', 'descripcion', 'isfut_casilla', 'factor_actualizacion', 'factor1', 'factor2', 'factor3', 'factor4', 'factor5', 'factor6', 'factor7', 'factor8', 'factor9', 'factor10', 'factor11', 'factor12', 'factor13', 'factor14', 'factor15', 'factor16', 'factor17', 'factor18', 'factor19', 'factor20', 'factor21', 'factor22', 'factor23', 'factor24', 'factor25', 'factor26', 'estado']
