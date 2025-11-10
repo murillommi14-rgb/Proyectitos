@@ -1,14 +1,14 @@
 import sqlite3
 import os
 
-# Path to the database
+# Ruta a la base de datos
 db_path = os.path.join(os.getcwd(), 'db.sqlite3')
 
-# Connect to the database
+# Conéctese a la base de datos
 conn = sqlite3.connect(db_path)
 cursor = conn.cursor()
 
-# SQL statements from sqlmigrate
+# Sentencias SQL de sqlmigrate
 sql_statements = """
 CREATE TABLE "core_role" ("id" integer NOT NULL PRIMARY KEY AUTOINCREMENT, "name" varchar(50) NOT NULL UNIQUE);
 CREATE TABLE "core_user" ("id" integer NOT NULL PRIMARY KEY AUTOINCREMENT, "password" varchar(128) NOT NULL, "last_login" datetime NULL, "is_superuser" bool NOT NULL, "username" varchar(150) NOT NULL UNIQUE, "first_name" varchar(150) NOT NULL, "last_name" varchar(150) NOT NULL, "email" varchar(254) NOT NULL, "is_staff" bool NOT NULL, "is_active" bool NOT NULL, "date_joined" datetime NOT NULL);
@@ -26,12 +26,12 @@ CREATE INDEX "core_user_user_permissions_user_id_085123d3" ON "core_user_user_pe
 CREATE INDEX "core_user_user_permissions_permission_id_35ccf601" ON "core_user_user_permissions" ("permission_id");
 """
 
-# Execute each statement
+# Ejecutar cada instrucción
 for statement in sql_statements.strip().split(';'):
     if statement.strip():
         cursor.execute(statement)
 
-# Commit and close
+# Comprométete y cierra
 conn.commit()
 conn.close()
 
