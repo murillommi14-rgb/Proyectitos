@@ -1,59 +1,53 @@
-# reglas de negocio aquí va la famosa suma de factores <= 1
+import os
 from django.core.exceptions import ValidationError
-from django.core.validators import RegexValidator
-from decimal import Decimal
-import re
+from django.conf import settings
+
+def validate_file_type(file):
+    """Valida el tipo MIME del archivo basado en extensión"""
+    allowed_extensions = ['.csv', '.xlsx', '.xls', '.pdf']
+    file_extension = os.path.splitext(file.name)[1].lower()
+
+    if file_extension not in allowed_extensions:
+        raise ValidationError(f'Extensión de archivo no permitida: {file_extension}. Permitidas: {", ".join(allowed_extensions)}')
+
+def validate_file_size(file):
+    """Valida el tamaño del archivo"""
+    max_size = getattr(settings, 'FILE_UPLOAD_MAX_MEMORY_SIZE', 10485760)  # 10MB default
+    if file.size > max_size:
+        raise ValidationError(f'Archivo demasiado grande. Máximo permitido: {max_size // (1024*1024)}MB')
+
+def validate_csv_columns(df):
+    """Valida que el DataFrame tenga las columnas requeridas"""
+    required_columns = [
+        'tipo_mercado', 'origen', 'mercado', 'instrumento', 'secuencia',
+        'numero_dividendo', 'tipo_sociedad', 'fecha', 'valor_historico',
+        'ejercicio', 'descripcion', 'isfut_casilla', 'factor_actualizacion'
+    ]
+
+    missing_columns = [col for col in required_columns if col not in df.columns]
+    if missing_columns:
+        raise ValidationError(f'Columnas faltantes en el archivo: {", ".join(missing_columns)}')
+
+def antivirus_scan(file):
+    """Escaneo básico de antivirus (placeholder para implementación real)"""
+    # En producción, integrar con ClamAV u otro antivirus
+    # Por ahora, solo verificar que no contenga código ejecutable básico
+    try:
+        content = file.read(1024).decode('utf-8', errors='ignore')
+        suspicious_patterns = ['<script', 'javascript:', 'vbscript:', 'onload=', 'onerror=', 'eval(']
+        if any(pattern in content.lower() for pattern in suspicious_patterns):
+            raise ValidationError('Contenido sospechoso detectado en el archivo')
+    except UnicodeDecodeError:
+        # Si no puede decodificar como texto, asumir que es binario válido
+        pass
+    finally:
+        file.seek(0)
 
 def validar_suma_factores_limitada(instance):
-    # sumamos factor1..factor26, si pasa de 1, marcamos como INVALIDO
-    total = sum([
-        instance.factor1 or Decimal("0"),
-        instance.factor2 or Decimal("0"),
-        instance.factor3 or Decimal("0"),
-        instance.factor4 or Decimal("0"),
-        instance.factor5 or Decimal("0"),
-        instance.factor6 or Decimal("0"),
-        instance.factor7 or Decimal("0"),
-        instance.factor8 or Decimal("0"),
-        instance.factor9 or Decimal("0"),
-        instance.factor10 or Decimal("0"),
-        instance.factor11 or Decimal("0"),
-        instance.factor12 or Decimal("0"),
-        instance.factor13 or Decimal("0"),
-        instance.factor14 or Decimal("0"),
-        instance.factor15 or Decimal("0"),
-        instance.factor16 or Decimal("0"),
-        instance.factor17 or Decimal("0"),
-        instance.factor18 or Decimal("0"),
-        instance.factor19 or Decimal("0"),
-        instance.factor20 or Decimal("0"),
-        instance.factor21 or Decimal("0"),
-        instance.factor22 or Decimal("0"),
-        instance.factor23 or Decimal("0"),
-        instance.factor24 or Decimal("0"),
-        instance.factor25 or Decimal("0"),
-        instance.factor26 or Decimal("0"),
-    ])
-    if total > Decimal("1"):
-        instance.estado = 'INVALIDO'
-
-# Validadores para campos
-corredor_validator = RegexValidator(
-    regex=r'^[a-zA-Z0-9\s\-]*$',
-    message="El corredor solo puede contener letras, números, espacios y guiones.",
-    code='invalid_corredor'
-)
-
-instrumento_validator = RegexValidator(
-    regex=r'^[a-zA-Z0-9\s\-\/]*$',
-    message="El instrumento solo puede contener letras, números, espacios, guiones y barras.",
-    code='invalid_instrumento'
-)
-
-def validar_anio(value):
-    if not (1900 <= value <= 2025):
-        raise ValidationError("El año debe estar entre 1900 y 2025.")
-
-def validar_monto(value):
-    if value < 0:
-        raise ValidationError("El monto no puede ser negativo.")
+    """Valida que la suma de factores no exceda 1.0"""
+    factores = [
+        getattr(instance, f'factor{i}', 0) or 0 for i in range(1, 27)
+    ]
+    suma = sum(factores)
+    if suma > 1.0:
+        raise ValidationError(f'La suma de los factores no puede exceder 1.0. Suma actual: {suma}')

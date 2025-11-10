@@ -145,14 +145,14 @@ class CalificacionListView(ListView):
                 return JsonResponse({'success': False, 'error': ' '.join(errors)})
         # Para solicitudes que no sean AJAX, redirija a la vista de lista.
         from django.http import HttpResponseRedirect
-        return HttpResponseRedirect(reverse_lazy('calif_list'))
+        return HttpResponseRedirect(reverse_lazy('calificaciones:calif_list'))
 
 @method_decorator(login_required, name='dispatch')
 class CalificacionCreateView(CreateView):
     # formulario de creación (valida reglas en model.clean())
     model = Calificacion
     form_class = CalificacionForm
-    success_url = reverse_lazy("calif_list")
+    success_url = reverse_lazy("calificaciones:calif_list")
     template_name = "calificaciones/crear.html"
 
     def form_valid(self, form):
@@ -183,7 +183,7 @@ class CalificacionUpdateView(UpdateView):
     # formulario de edición
     model = Calificacion
     form_class = CalificacionForm
-    success_url = reverse_lazy("calif_list")
+    success_url = reverse_lazy("calificaciones:calif_list")
     template_name = "calificaciones/crear.html"
 
     def form_valid(self, form):
@@ -237,7 +237,7 @@ class CalificacionUpdateView(UpdateView):
 class CalificacionDeleteView(DeleteView):
     # vista de eliminación
     model = Calificacion
-    success_url = reverse_lazy("calif_list")
+    success_url = reverse_lazy("calificaciones:calif_list")
     template_name = "calificaciones/confirm_delete.html"
 
 
@@ -682,7 +682,7 @@ def bulk_upload_ajax(request):
 class BulkUploadView(FormView):
     template_name = "calificaciones/bulk_upload.html"
     form_class = BulkUploadForm
-    success_url = reverse_lazy("calif_list")
+    success_url = reverse_lazy("calificaciones:calif_list")
 
     def form_valid(self, form):
         files = self.request.FILES.getlist('file')

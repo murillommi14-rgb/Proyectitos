@@ -1,0 +1,345 @@
+{% load static %}
+<!-- Modal Dashboard -->
+<div class="modal fade" id="dashboardModal" tabindex="-1" aria-labelledby="dashboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="dashboardModalLabel">
+                    <i class="fas fa-chart-line me-2"></i>Dashboard de Calificaciones
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Filtros del Dashboard -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <label class="form-label">Tipo Mercado</label>
+                        <select class="form-select" id="dashboard_tipo_mercado">
+                            <option value="">Todos</option>
+                            <option value="ACCIONES">Acciones</option>
+                            <option value="CFI">CFI</option>
+                            <option value="FONDOS_MUTUOS">Fondos Mutuos</option>
+                            <option value="ISIFT">ISIFT</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Origen</label>
+                        <select class="form-select" id="dashboard_origen">
+                            <option value="">Todos</option>
+                            <option value="CORREDORA">Corredora</option>
+                            <option value="SISTEMA">Sistema</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Ejercicio</label>
+                        <input type="number" class="form-control" id="dashboard_ejercicio" placeholder="Año">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">&nbsp;</label>
+                        <button class="btn btn-primary w-100" id="dashboard_refresh">
+                            <i class="fas fa-sync-alt me-1"></i>Actualizar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Métricas Principales -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <i class="fas fa-list me-2"></i>Total Calificaciones
+                                </h5>
+                                <h3 id="total_calificaciones">-</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-success text-white">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <i class="fas fa-check-circle me-2"></i>Vigentes
+                                </h5>
+                                <h3 id="vigentes">-</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-warning text-white">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <i class="fas fa-clock me-2"></i>En Proceso
+                                </h5>
+                                <h3 id="en_proceso">-</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-danger text-white">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <i class="fas fa-times-circle me-2"></i>Inválidas
+                                </h5>
+                                <h3 id="invalidas">-</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gráficos -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">
+                                    <i class="fas fa-chart-pie me-2"></i>Distribución por Tipo Mercado
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="tipoMercadoChart" width="400" height="300"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">
+                                    <i class="fas fa-chart-bar me-2"></i>Distribución por Estado
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="estadoChart" width="400" height="300"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla en Tiempo Real -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="card-title mb-0">
+                            <i class="fas fa-table me-2"></i>Últimas Modificaciones
+                        </h6>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-outline-primary" id="auto_refresh_toggle">
+                                <i class="fas fa-play me-1"></i>Auto-refresh: ON
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" id="export_dashboard">
+                                <i class="fas fa-download me-1"></i>Exportar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover" id="dashboard_table">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Tipo Mercado</th>
+                                        <th>Origen</th>
+                                        <th>Mercado</th>
+                                        <th>Instrumento</th>
+                                        <th>Secuencia</th>
+                                        <th>Número Dividendo</th>
+                                        <th>Tipo Sociedad</th>
+                                        <th>Fecha</th>
+                                        <th>Valor Histórico</th>
+                                        <th>Ejercicio</th>
+                                        <th>Descripción</th>
+                                        <th>ISFUT</th>
+                                        <th>Factor Actualización</th>
+                                        <th>Estado</th>
+                                        <th>Última Modificación</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dashboard_tbody">
+                                    <!-- Datos se cargarán dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+let dashboardInterval;
+let autoRefreshEnabled = true;
+
+// Función para cargar datos del dashboard
+function loadDashboardData() {
+    const tipoMercado = document.getElementById('dashboard_tipo_mercado').value;
+    const origen = document.getElementById('dashboard_origen').value;
+    const ejercicio = document.getElementById('dashboard_ejercicio').value;
+
+    const params = new URLSearchParams();
+    if (tipoMercado) params.append('tipo_mercado', tipoMercado);
+    if (origen) params.append('origen', origen);
+    if (ejercicio) params.append('ejercicio', ejercicio);
+
+    fetch(`/calificaciones/dashboard-data/?${params}`)
+        .then(response => response.json())
+        .then(data => {
+            updateMetrics(data.metrics);
+            updateCharts(data.charts);
+            updateTable(data.recent_changes);
+        })
+        .catch(error => {
+            console.error('Error loading dashboard data:', error);
+        });
+}
+
+// Función para actualizar métricas
+function updateMetrics(metrics) {
+    document.getElementById('total_calificaciones').textContent = metrics.total || 0;
+    document.getElementById('vigentes').textContent = metrics.vigentes || 0;
+    document.getElementById('en_proceso').textContent = metrics.en_proceso || 0;
+    document.getElementById('invalidas').textContent = metrics.invalidas || 0;
+}
+
+// Función para actualizar gráficos
+function updateCharts(chartData) {
+    // Gráfico de Tipo Mercado
+    const ctxTipoMercado = document.getElementById('tipoMercadoChart').getContext('2d');
+    new Chart(ctxTipoMercado, {
+        type: 'pie',
+        data: {
+            labels: chartData.tipo_mercado.labels,
+            datasets: [{
+                data: chartData.tipo_mercado.data,
+                backgroundColor: [
+                    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                }
+            }
+        }
+    });
+
+    // Gráfico de Estado
+    const ctxEstado = document.getElementById('estadoChart').getContext('2d');
+    new Chart(ctxEstado, {
+        type: 'bar',
+        data: {
+            labels: chartData.estado.labels,
+            datasets: [{
+                label: 'Cantidad',
+                data: chartData.estado.data,
+                backgroundColor: '#36A2EB'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+// Función para actualizar tabla
+function updateTable(recentChanges) {
+    const tbody = document.getElementById('dashboard_tbody');
+    tbody.innerHTML = '';
+
+    recentChanges.forEach(item => {
+        const row = document.createElement('tr');
+
+        row.innerHTML = `
+            <td>${item.tipo_mercado_display}</td>
+            <td>${item.origen_display}</td>
+            <td>${item.mercado}</td>
+            <td>${item.instrumento}</td>
+            <td>${item.secuencia}</td>
+            <td>${item.numero_dividendo}</td>
+            <td>${item.tipo_sociedad}</td>
+            <td>${new Date(item.fecha).toLocaleDateString('es-ES')}</td>
+            <td>$${parseFloat(item.valor_historico).toLocaleString()}</td>
+            <td>${new Date(item.ejercicio).getFullYear()}</td>
+            <td>${item.descripcion || ''}</td>
+            <td>
+                <span class="badge ${item.isfut_casilla ? 'bg-success' : 'bg-secondary'}">
+                    ${item.isfut_casilla ? 'Sí' : 'No'}
+                </span>
+            </td>
+            <td>${parseFloat(item.factor_actualizacion).toFixed(4)}</td>
+            <td>
+                <span class="badge bg-${getEstadoColor(item.estado)}">
+                    ${item.estado}
+                </span>
+            </td>
+            <td>${new Date(item.actualizado_en).toLocaleString('es-ES')}</td>
+        `;
+
+        tbody.appendChild(row);
+    });
+}
+
+// Función auxiliar para colores de estado
+function getEstadoColor(estado) {
+    const colors = {
+        'VIGENTE': 'success',
+        'EN PROCESO': 'warning',
+        'BORRADOR': 'secondary',
+        'ANULADA': 'danger',
+        'INVALIDO': 'danger'
+    };
+    return colors[estado] || 'secondary';
+}
+
+// Event listeners
+document.getElementById('dashboard_refresh').addEventListener('click', loadDashboardData);
+
+document.getElementById('auto_refresh_toggle').addEventListener('click', function() {
+    autoRefreshEnabled = !autoRefreshEnabled;
+    this.innerHTML = `<i class="fas fa-${autoRefreshEnabled ? 'play' : 'pause'} me-1"></i>Auto-refresh: ${autoRefreshEnabled ? 'ON' : 'OFF'}`;
+
+    if (autoRefreshEnabled) {
+        startAutoRefresh();
+    } else {
+        stopAutoRefresh();
+    }
+});
+
+document.getElementById('export_dashboard').addEventListener('click', function() {
+    // Implementar exportación del dashboard
+    alert('Funcionalidad de exportación próximamente disponible');
+});
+
+// Auto-refresh
+function startAutoRefresh() {
+    dashboardInterval = setInterval(loadDashboardData, 30000); // 30 segundos
+}
+
+function stopAutoRefresh() {
+    if (dashboardInterval) {
+        clearInterval(dashboardInterval);
+    }
+}
+
+// Inicializar cuando se abre el modal
+document.getElementById('dashboardModal').addEventListener('show.bs.modal', function() {
+    loadDashboardData();
+    if (autoRefreshEnabled) {
+        startAutoRefresh();
+    }
+});
+
+// Detener auto-refresh cuando se cierra el modal
+document.getElementById('dashboardModal').addEventListener('hide.bs.modal', function() {
+    stopAutoRefresh();
+});
+</script>
