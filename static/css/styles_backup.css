@@ -1,0 +1,175 @@
+/* Custom styles for NUAM Mantenedor */
+
+/* General styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f5f5;
+    font-size: 0.875rem;
+}
+
+.card {
+    border: 1px solid #ddd;
+    box-shadow: none;
+    margin: 0;
+}
+
+.card-header {
+    background-color: #343a40;
+    color: white;
+    border-bottom: 1px solid #ddd;
+    padding: 0.75rem 1rem;
+}
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+
+/* Form styles */
+.form-control {
+    border-radius: 0.25rem;
+    border: 1px solid #ccc;
+    font-size: 0.875rem;
+    height: 2rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.form-control:focus {
+    border-color: #495057;
+    box-shadow: 0 0 0 0.1rem rgba(73, 80, 87, 0.25);
+}
+
+.form-select {
+    border-radius: 0.25rem;
+    border: 1px solid #ccc;
+    font-size: 0.875rem;
+    height: 2rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.form-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.input-group-text {
+    font-size: 0.875rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.form-text {
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+/* Compact form layout */
+.row.g-3 {
+    --bs-gutter-x: 0.5rem;
+    --bs-gutter-y: 0.5rem;
+}
+
+.mb-3 {
+    margin-bottom: 0.5rem !important;
+}
+
+.mt-3, .mt-4 {
+    margin-top: 0.5rem !important;
+}
+
+.card-body {
+    padding: 1rem;
+}
+
+/* Factors table */
+.factors-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.factors-table th, .factors-table td {
+    border: 1px solid #ddd;
+    padding: 0.5rem;
+    text-align: left;
+    vertical-align: top;
+}
+
+.factors-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.factors-table .factor-input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-size: 0.875rem;
+    padding: 0.25rem;
+}
+
+.factors-table .factor-input:focus {
+    outline: 1px solid #495057;
+}
+
+/* Table styles */
+.table {
+    margin-bottom: 0;
+    font-size: 0.875rem;
+}
+
+.table th {
+    background-color: #f8f9fa;
+    border-top: none;
+    font-weight: 600;
+}
+
+/* Navigation */
+.navbar-brand {
+    font-weight: bold;
+}
+
+/* Sum display box */
+.sum-display {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    margin-top: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 0.25rem;
+    background-color: #f8f9fa;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-align: center;
+    min-width: 200px;
+    color: #28a745;
+}
+
+.sum-display.invalid {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card-body {
+        padding: 0.5rem;
+    }
+    .factors-table th, .factors-table td {
+        padding: 0.25rem;
+    }
+}

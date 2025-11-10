@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load django_bootstrap5 %}
+
+{% block title %}Carga Masiva - Calificaciones{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h1 class="card-title mb-0">Carga Masiva de Calificaciones</h1>
+                <a href="{% url 'calif_list' %}" class="btn btn-secondary">Volver a Lista</a>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <h5>Instrucciones para carga masiva:</h5>
+                    <p>Para evitar errores, descarga la plantilla en el formato que prefieras y completa los datos manteniendo las columnas exactas.</p>
+                    <p>
+                        <a href="{% url 'download_template_csv' %}" class="btn btn-outline-primary btn-sm me-2">Descargar Plantilla CSV</a>
+                        <a href="{% url 'download_template_xlsx' %}" class="btn btn-outline-success btn-sm me-2">Descargar Plantilla XLSX</a>
+                        <a href="{% url 'download_template_pdf' %}" class="btn btn-outline-danger btn-sm">Descargar Plantilla PDF</a>
+                    </p>
+                    <p><strong>Columnas requeridas:</strong> tipo_mercado, origen, ejercicio, mercado, instrumento, fecha, secuencia, numero_dividendo, tipo_sociedad, valor_historico, isfut_casilla, factor1, factor2, factor3, factor4, factor5, factor6, factor7, factor8, factor9, factor10, factor11, factor12, factor13, factor14, factor15, factor16, factor17, factor18, factor19, factor20, factor21, factor22, factor23, factor24, factor25, factor26</p>
+                    <p><strong>Columna opcional:</strong> estado (si no se incluye, se usa 'BORRADOR')</p>
+                    <p><strong>Importante:</strong> Los factores factor1-factor26 deben sumar 1. Si suman más, se marcarán como 'INVÁLIDO' automáticamente.</p>
+                    <p><strong>Nota:</strong> También se aceptan archivos PDF con tablas estructuradas para carga masiva.</p>
+                </div>
+
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% bootstrap_form form %}
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">Cargar Archivo</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

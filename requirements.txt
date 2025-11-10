@@ -1,0 +1,7 @@
+Django==4.2
+openpyxl
+reportlab
+pandas
+django-bootstrap5
+gunicorn
+pdfplumber

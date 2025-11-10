@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Eliminar Calificación{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>¿Estás seguro de que quieres eliminar esta calificación?</h2>
+    <p><strong>{{ object }}</strong></p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Eliminar</button>
+        <a href="{% url 'calif_list' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

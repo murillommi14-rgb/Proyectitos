@@ -1,0 +1,413 @@
+{% load django_bootstrap5 %}
+<!-- Modal para crear nueva calificación -->
+<div class="modal fade" id="crearCalificacionModal" tabindex="-1" aria-labelledby="crearCalificacionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="crearCalificacionModalLabel">Crear Nueva Calificación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" id="crearCalificacionForm">
+                    {% csrf_token %}
+                    {% bootstrap_form_errors form %}
+
+                    <!-- Identificación general -->
+                    <h6 class="mt-3 mb-2 fw-bold">Identificación general</h6>
+                    <div class="row g-3 mb-2">
+                        <div class="col-md-3">
+                            <label for="{{ form.estado.id_for_label }}" class="form-label">{{ form.estado.label }}</label>
+                            <select class="form-select" name="{{ form.estado.name }}" id="{{ form.estado.id_for_label }}">
+                                {% for choice_value, choice_label in form.estado.field.choices %}
+                                    <option value="{{ choice_value }}" {% if form.estado.value == choice_value %} selected{% endif %}>{{ choice_label }}</option>
+                                {% endfor %}
+                            </select>
+                            {% if form.estado.errors %}
+                                <div class="invalid-feedback d-block">{{ form.estado.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            <label for="{{ form.secuencia.id_for_label }}" class="form-label">{{ form.secuencia.label }}</label>
+                            <input type="number" class="form-control" name="{{ form.secuencia.name }}" id="{{ form.secuencia.id_for_label }}" value="{{ form.secuencia.value|default:'' }}" min="{{ form.secuencia.field.widget.attrs.min|default:'10000' }}">
+                            {% if form.secuencia.errors %}
+                                <div class="invalid-feedback d-block">{{ form.secuencia.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            <label for="{{ form.tipo_mercado.id_for_label }}" class="form-label">{{ form.tipo_mercado.label }}</label>
+                            <select class="form-select" name="{{ form.tipo_mercado.name }}" id="{{ form.tipo_mercado.id_for_label }}">
+                                {% for choice_value, choice_label in form.tipo_mercado.field.choices %}
+                                    <option value="{{ choice_value }}" {% if form.tipo_mercado.value == choice_value %}selected{% endif %}>{{ choice_label }}</option>
+                                {% endfor %}
+                            </select>
+                            {% if form.tipo_mercado.errors %}
+                                <div class="invalid-feedback d-block">{{ form.tipo_mercado.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            <label for="{{ form.origen.id_for_label }}" class="form-label">{{ form.origen.label }}</label>
+                            <select class="form-select" name="{{ form.origen.name }}" id="{{ form.origen.id_for_label }}">
+                                {% for choice_value, choice_label in form.origen.field.choices %}
+                                    <option value="{{ choice_value }}" {% if form.origen.value == choice_value %}selected{% endif %}>{{ choice_label }}</option>
+                                {% endfor %}
+                            </select>
+                            {% if form.origen.errors %}
+                                <div class="invalid-feedback d-block">{{ form.origen.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Instrumento financiero -->
+                    <h6 class="mt-3 mb-2 fw-bold">Instrumento financiero</h6>
+                    <div class="row g-3 mb-2">
+                        <div class="col-md-3">
+                            <label for="{{ form.mercado.id_for_label }}" class="form-label">{{ form.mercado.label }}</label>
+                            <select class="form-select" name="{{ form.mercado.name }}" id="{{ form.mercado.id_for_label }}">
+                                <option value="">Seleccionar</option>
+                                <option value="Nacional" {% if form.mercado.value == 'Nacional' %}selected{% endif %}>Nacional</option>
+                                <option value="Internacional" {% if form.mercado.value == 'Internacional' %}selected{% endif %}>Internacional</option>
+                                <option value="Extranjero" {% if form.mercado.value == 'Extranjero' %}selected{% endif %}>Extranjero</option>
+                                <option value="Local" {% if form.mercado.value == 'Local' %}selected{% endif %}>Local</option>
+                            </select>
+                            {% if form.mercado.errors %}
+                                <div class="invalid-feedback d-block">{{ form.mercado.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            <label for="{{ form.instrumento.id_for_label }}" class="form-label">{{ form.instrumento.label }}</label>
+                            <input type="text" class="form-control" name="{{ form.instrumento.name }}" id="{{ form.instrumento.id_for_label }}" value="{{ form.instrumento.value|default:'' }}" placeholder="{{ form.instrumento.field.widget.attrs.placeholder|default:'' }}" autocomplete="off">
+                            {% if form.instrumento.errors %}
+                                <div class="invalid-feedback d-block">{{ form.instrumento.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            <label for="{{ form.numero_dividendo.id_for_label }}" class="form-label">{{ form.numero_dividendo.label }}</label>
+                            <input type="number" class="form-control" name="{{ form.numero_dividendo.name }}" id="{{ form.numero_dividendo.id_for_label }}" value="{{ form.numero_dividendo.value|default:'0' }}" min="{{ form.numero_dividendo.field.widget.attrs.min|default:'0' }}">
+                            {% if form.numero_dividendo.errors %}
+                                <div class="invalid-feedback d-block">{{ form.numero_dividendo.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            <label for="{{ form.tipo_sociedad.id_for_label }}" class="form-label">{{ form.tipo_sociedad.label }}</label>
+                            <select class="form-select" name="{{ form.tipo_sociedad.name }}" id="{{ form.tipo_sociedad.id_for_label }}">
+                                {% for choice_value, choice_label in form.tipo_sociedad.field.choices %}
+                                    <option value="{{ choice_value }}" {% if form.tipo_sociedad.value == choice_value %}selected{% endif %}>{{ choice_label }}</option>
+                                {% endfor %}
+                            </select>
+                            {% if form.tipo_sociedad.errors %}
+                                <div class="invalid-feedback d-block">{{ form.tipo_sociedad.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row g-3 mb-2">
+                        <div class="col-md-6">
+                            <label for="{{ form.valor_historico.id_for_label }}" class="form-label">{{ form.valor_historico.label }}</label>
+                            <input type="number" class="form-control" name="{{ form.valor_historico.name }}" id="{{ form.valor_historico.id_for_label }}" value="{{ form.valor_historico.value|default:'' }}" min="{{ form.valor_historico.field.widget.attrs.min|default:'0' }}" step="0.01">
+                            {% if form.valor_historico.errors %}
+                                <div class="invalid-feedback d-block">{{ form.valor_historico.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.factor_actualizacion.id_for_label }}" class="form-label">{{ form.factor_actualizacion.label }}</label>
+                            <input type="number" class="form-control" name="{{ form.factor_actualizacion.name }}" id="{{ form.factor_actualizacion.id_for_label }}" value="{{ form.factor_actualizacion.value|default:'0' }}" step="{{ form.factor_actualizacion.field.widget.attrs.step|default:'0.0001' }}" min="{{ form.factor_actualizacion.field.widget.attrs.min|default:'0' }}">
+                            {% if form.factor_actualizacion.errors %}
+                                <div class="invalid-feedback d-block">{{ form.factor_actualizacion.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Fechas y períodos -->
+                    <h6 class="mt-3 mb-2 fw-bold">Fechas y períodos</h6>
+                    <div class="row g-3 mb-2">
+                        <div class="col-md-6">
+                            <label for="{{ form.fecha.id_for_label }}" class="form-label">{{ form.fecha.label }}</label>
+                            <input type="date" class="form-control" name="{{ form.fecha.name }}" id="{{ form.fecha.id_for_label }}" value="{{ form.fecha.value|date:'Y-m-d' }}">
+                            {% if form.fecha.errors %}
+                                <div class="invalid-feedback d-block">{{ form.fecha.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.ejercicio.id_for_label }}" class="form-label">{{ form.ejercicio.label }}</label>
+                            <input type="date" class="form-control" name="{{ form.ejercicio.name }}" id="{{ form.ejercicio.id_for_label }}" value="{{ form.ejercicio.value|date:'Y-m-d' }}">
+                            {% if form.ejercicio.errors %}
+                                <div class="invalid-feedback d-block">{{ form.ejercicio.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Complementarios -->
+                    <h6 class="mt-3 mb-2 fw-bold">Complementarios</h6>
+                    <div class="row g-3 mb-2">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="{{ form.isfut_casilla.name }}" id="{{ form.isfut_casilla.id_for_label }}" {% if form.isfut_casilla.value %}checked{% endif %}>
+                                <label class="form-check-label" for="{{ form.isfut_casilla.id_for_label }}">{{ form.isfut_casilla.label }}</label>
+                            </div>
+                            {% if form.isfut_casilla.errors %}
+                                <div class="invalid-feedback d-block">{{ form.isfut_casilla.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.descripcion.id_for_label }}" class="form-label">{{ form.descripcion.label }}</label>
+                            <textarea class="form-control" name="{{ form.descripcion.name }}" id="{{ form.descripcion.id_for_label }}" rows="2" maxlength="{{ form.descripcion.field.widget.attrs.maxlength|default:'1000' }}" style="resize: none;">{{ form.descripcion.value|default:'' }}</textarea>
+                            {% if form.descripcion.errors %}
+                                <div class="invalid-feedback d-block">{{ form.descripcion.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Factores en tabla -->
+                    <h6 class="mt-3 mb-2 fw-bold">Factores (1..26)</h6>
+                    <div class="d-flex justify-content-center gap-3 mb-2">
+                        <div id="total-sum-display" class="sum-display">Suma total de factores 1-26: 0.0000</div>
+                    </div>
+                    <div id="error-message" class="text-danger mt-2" style="display: none;"></div>
+                    <table class="factors-table">
+                        <thead>
+                            <tr>
+                                <th>Factor</th>
+                                <th>Valor</th>
+                                <th>Descripción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Factor 1</td>
+                                <td>{{ form.factor1 }}</td>
+                                <td>Con crédito por IDPC generados a contar del 01.01.2017</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 2</td>
+                                <td>{{ form.factor2 }}</td>
+                                <td>Con crédito por IDPC acumulados hasta el 31.12.2016</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 3</td>
+                                <td>{{ form.factor3 }}</td>
+                                <td>Con derecho a crédito por pago de IDPC voluntario</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 4</td>
+                                <td>{{ form.factor4 }}</td>
+                                <td>Sin derecho a crédito</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 5</td>
+                                <td>{{ form.factor5 }}</td>
+                                <td>Rentas provenientes del registro RAP y Diferencia Inicial de sociedad acogida al ex Art. 14 TER A) LIR</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 6</td>
+                                <td>{{ form.factor6 }}</td>
+                                <td>Otras rentas percibidas Sin Prioridad en su orden de imputación</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 7</td>
+                                <td>{{ form.factor7 }}</td>
+                                <td>Exceso Distribuciones Desproporcionadas (N°9 Art.14 A)</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 8</td>
+                                <td>{{ form.factor8 }}</td>
+                                <td>Utilidades afectadas con impuesto sustitutivo al FUT (ISFUT) Ley N°20.780</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 9</td>
+                                <td>{{ form.factor9 }}</td>
+                                <td>Rentas generadas hasta el 31.12.1983 y/o utilidades afectadas con impuesto sustitutivo al FUT (ISFUT) LEY N°21.210</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 10</td>
+                                <td>{{ form.factor10 }}</td>
+                                <td>Rentas Exentas de Impuesto Global Complementario (IGC) (Artículo 11, Ley 18.401), Afectas a Impuesto Adicional</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 11</td>
+                                <td>{{ form.factor11 }}</td>
+                                <td>Rentas Exentas de Impuesto Global Complementario (IGC) y/o Impuesto Adicional (IA)</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 12</td>
+                                <td>{{ form.factor12 }}</td>
+                                <td>Ingresos No Constitutivos de Renta</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 13</td>
+                                <td>{{ form.factor13 }}</td>
+                                <td>No Sujetos a Restitución generados Hasta el 31.12.2019 Sin derecho</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 14</td>
+                                <td>{{ form.factor14 }}</td>
+                                <td>No Sujetos a Restitución generados Hasta el 31.12.2019 Con derecho</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 15</td>
+                                <td>{{ form.factor15 }}</td>
+                                <td>No Sujetos a Restitución generados a contar del 01.01.2020 Sin derecho</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 16</td>
+                                <td>{{ form.factor16 }}</td>
+                                <td>No Sujetos a Restitución generados a contar del 01.01.2020 Con derecho</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 17</td>
+                                <td>{{ form.factor17 }}</td>
+                                <td>Sujeto a restitución sin derecho</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 18</td>
+                                <td>{{ form.factor18 }}</td>
+                                <td>Sujeto a restitución Con derecho</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 19</td>
+                                <td>{{ form.factor19 }}</td>
+                                <td>Sujeto a restitución Sin derecho</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 20</td>
+                                <td>{{ form.factor20 }}</td>
+                                <td>Sujeto a restitución Con derecho</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 21</td>
+                                <td>{{ form.factor21 }}</td>
+                                <td>Crédito IPE</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 22</td>
+                                <td>{{ form.factor22 }}</td>
+                                <td>Asociados a Rentas Afectas, sin derecho</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 23</td>
+                                <td>{{ form.factor23 }}</td>
+                                <td>Asociados a Rentas Afectas, Con derecho</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 24</td>
+                                <td>{{ form.factor24 }}</td>
+                                <td>Asociados a Rentas Exentas (artículo 11, Ley 18.401), sin derecho</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 25</td>
+                                <td>{{ form.factor25 }}</td>
+                                <td>Asociados a Rentas Exentas (artículo 11, Ley 18.401), con derecho</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 26</td>
+                                <td>{{ form.factor26 }}</td>
+                                <td>Crédito por IPE</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="calcular-btn" class="btn btn-secondary btn-sm">Retornar</button>
+                <button type="button" id="calcular-factores-btn" class="btn btn-info btn-sm">Calcular Factores</button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" form="crearCalificacionForm" class="btn btn-primary btn-sm">Crear Calificación</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function calculateTotalSum() {
+    let totalSum = 0;
+    let hasError = false;
+    const errorMessage = document.getElementById('error-message');
+    errorMessage.style.display = 'none';
+    errorMessage.textContent = '';
+
+    for (let i = 1; i <= 26; i++) {
+        const input = document.getElementById('id_factor' + i);
+        if (input && input.value.trim() !== '') {
+            const value = parseFloat(input.value);
+            if (isNaN(value)) {
+                hasError = true;
+                errorMessage.textContent = `Error: Valor no numérico en Factor ${i}`;
+                errorMessage.style.display = 'block';
+                break;
+            }
+            totalSum += value;
+        }
+    }
+
+    if (!hasError) {
+        const totalSumDisplay = document.getElementById('total-sum-display');
+        totalSumDisplay.textContent = `Suma total de factores 1-26: ${totalSum.toFixed(4)}`;
+    }
+}
+
+document.getElementById('calcular-btn').addEventListener('click', function() {
+    // Restablecer todos los factores a 0,0000
+    for (let i = 1; i <= 26; i++) {
+        const factorInput = document.getElementById('id_factor' + i);
+        if (factorInput) {
+            factorInput.value = '0.0000';
+        }
+    }
+    // Actualizar la visualización de la suma total
+    calculateTotalSum();
+});
+
+document.getElementById('calcular-factores-btn').addEventListener('click', function() {
+    calculateTotalSum();
+});
+
+// Gestionar el envío de formularios mediante AJAX
+document.getElementById('crearCalificacionForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const form = this;
+    const formData = new FormData(form);
+
+    // Mostrar estado de carga
+    const submitBtn = document.querySelector('button[form="crearCalificacionForm"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Creando...';
+
+    fetch('{% url "calif_list" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success === false) {
+            // Error de validación del formulario
+            showErrorToast('Error de validación', data.error || 'Por favor, revise los campos del formulario.');
+        } else {
+            // Éxito
+            const modal = bootstrap.Modal.getInstance(document.getElementById('crearCalificacionModal'));
+            modal.hide();
+
+            // Mostrar mensaje de éxito
+            showSuccessToast('¡Éxito!', 'Calificación creada exitosamente.');
+
+            // Recarga la página para ver el nuevo registro.
+            location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showErrorToast('Error', 'Error de conexión. Por favor, inténtelo nuevamente.');
+    })
+    .finally(() => {
+        // botón restaura
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    });
+});
+
+// Actualización al cargar
+calculateTotalSum();
+</script>

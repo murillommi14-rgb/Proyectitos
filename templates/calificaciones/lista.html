@@ -1,0 +1,857 @@
+{% extends "base.html" %}
+{% load django_bootstrap5 %}
+
+{% block title %}Calificaciones - Lista{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="card">
+        <div class="card-header">
+            <h1 class="card-title mb-0 h5"><i class="fas fa-clipboard-list me-3"></i>Calificaciones</h1>
+        </div>
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div></div>
+                <div>
+                    <button type="button" class="btn btn-primary btn-sm me-1" data-bs-toggle="modal" data-bs-target="#crearCalificacionModal">
+                        <i class="fas fa-plus me-1"></i>Crear Nueva
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm me-1" data-bs-toggle="modal" data-bs-target="#bulkUploadModal">
+                        <i class="fas fa-upload me-1"></i>Carga de Calificaciones
+                    </button>
+                    <a class="btn btn-success btn-sm me-1" href="{% url 'export_excel' %}?ejercicio={{ filter_ejercicio }}&mercado={{ filter_mercado }}">
+                        <i class="fas fa-file-excel me-1"></i>Exportar Excel
+                    </a>
+                    <a class="btn btn-info btn-sm" href="{% url 'export_pdf' %}?ejercicio={{ filter_ejercicio }}&mercado={{ filter_mercado }}">
+                        <i class="fas fa-file-pdf me-1"></i>Exportar PDF
+                    </a>
+                </div>
+            </div>
+
+            <form method="get" class="row g-3 mb-4">
+                <div class="col-md-2">
+                    <label for="tipo_mercado" class="form-label">Tipo Mercado:</label>
+                    <select class="form-control" name="tipo_mercado" id="tipo_mercado">
+                        <option value="">Todos</option>
+                        <option value="ACCIONES" {% if filter_tipo_mercado == 'ACCIONES' %}selected{% endif %}>Acciones</option>
+                        <option value="CFI" {% if filter_tipo_mercado == 'CFI' %}selected{% endif %}>CFI</option>
+                        <option value="FONDOS_MUTUOS" {% if filter_tipo_mercado == 'FONDOS_MUTUOS' %}selected{% endif %}>Fondos Mutuos</option>
+                        <option value="ISIFT" {% if filter_tipo_mercado == 'ISIFT' %}selected{% endif %}>ISIFT</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="origen" class="form-label">Origen:</label>
+                    <select class="form-control" name="origen" id="origen">
+                        <option value="">Todos</option>
+                        <option value="CORREDORA" {% if filter_origen == 'CORREDORA' %}selected{% endif %}>Corredora</option>
+                        <option value="SISTEMA" {% if filter_origen == 'SISTEMA' %}selected{% endif %}>Sistema</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="ejercicio" class="form-label">Ejercicio:</label>
+                    <input type="number" class="form-control" name="ejercicio" id="ejercicio" value="{{ filter_ejercicio }}" placeholder="Buscar ejercicio" min="1900">
+                </div>
+                <div class="col-md-3">
+                    <label for="mercado" class="form-label">Mercado:</label>
+                    <select class="form-control" name="mercado" id="mercado">
+                        <option value="">Todos</option>
+                        <option value="Nacional" {% if filter_mercado == 'Nacional' %}selected{% endif %}>Nacional</option>
+                        <option value="Internacional" {% if filter_mercado == 'Internacional' %}selected{% endif %}>Internacional</option>
+                        <option value="Extranjero" {% if filter_mercado == 'Extranjero' %}selected{% endif %}>Extranjero</option>
+                        <option value="Local" {% if filter_mercado == 'Local' %}selected{% endif %}>Local</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">Filtrar</button>
+                    <a href="{% url 'calif_list' %}" class="btn btn-outline-secondary">Limpiar Filtros</a>
+                </div>
+            </form>
+
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Tipo Mercado</th>
+                            <th>Origen</th>
+                            <th>Mercado</th>
+                            <th>Instrumento</th>
+                            <th>Secuencia</th>
+                            <th>Número Dividendo</th>
+                            <th>Tipo Sociedad</th>
+                            <th>Fecha</th>
+                            <th>Valor Histórico</th>
+                            <th>Ejercicio</th>
+                            <th>Descripción</th>
+                            <th>ISFUT</th>
+                            <th>Factor Actualización</th>
+                            <th>Estado</th>
+                            <th>Actualizado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for c in object_list %}
+                        <tr data-id="{{ c.pk }}">
+                            <td>{{ c.get_tipo_mercado_display }}</td>
+                            <td>{{ c.get_origen_display }}</td>
+                            <td>{{ c.mercado }}</td>
+                            <td>{{ c.instrumento }}</td>
+                            <td>{{ c.secuencia }}</td>
+                            <td>{{ c.numero_dividendo }}</td>
+                            <td>{{ c.tipo_sociedad }}</td>
+                            <td>{{ c.fecha|date:"d/m/Y" }}</td>
+                            <td>${{ c.valor_historico|floatformat:0 }}</td>
+                            <td>{{ c.ejercicio|date:"Y" }}</td>
+                            <td>{{ c.descripcion|truncatechars:50 }}</td>
+                            <td>
+                                {% if c.isfut_casilla %}
+                                    <span class="badge bg-success">Sí</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">No</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ c.factor_actualizacion|floatformat:4 }}</td>
+                            <td>
+                                <span class="badge bg-{% if c.estado == 'VIGENTE' %}success{% elif c.estado == 'ANULADA' %}danger{% else %}warning{% endif %}">
+                                    {{ c.estado|title }}
+                                </span>
+                            </td>
+                            <td>{{ c.actualizado_en|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-warning me-1" title="Editar"onclick="openEditModal({{ c.pk }})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <a href="{% url 'calif_eliminar' c.pk %}" class="btn btn-sm btn-danger" title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="16" class="text-center text-muted">Sin datos disponibles</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if is_paginated %}
+            <nav aria-label="Paginación">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if filter_ejercicio %}&ejercicio={{ filter_ejercicio }}{% endif %}{% if filter_mercado %}&mercado={{ filter_mercado }}{% endif %}">Anterior</a>
+                        </li>
+                    {% endif %}
+
+                    <li class="page-item disabled">
+                        <span class="page-link">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+                    </li>
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if filter_ejercicio %}&ejercicio={{ filter_ejercicio }}{% endif %}{% if filter_mercado %}&mercado={{ filter_mercado }}{% endif %}">Siguiente</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal para carga masiva-->
+<div class="modal fade" id="bulkUploadModal" tabindex="-1" aria-labelledby="bulkUploadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bulkUploadModalLabel">Carga de Calificaciones</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <h5>Instrucciones para carga masiva:</h5>
+                    <p>Para evitar errores, descarga la plantilla en el formato que prefieras y completa los datos manteniendo las columnas exactas.</p>
+                    <p>
+                        <a href="{% url 'download_template_csv' %}" class="btn btn-outline-primary btn-sm me-2">Descargar Plantilla CSV</a>
+                        <a href="{% url 'download_template_xlsx' %}" class="btn btn-outline-success btn-sm me-2">Descargar Plantilla XLSX</a>
+                        <a href="{% url 'download_template_pdf' %}" class="btn btn-outline-danger btn-sm">Descargar Plantilla PDF</a>
+                    </p>
+                    <p><strong>Columnas requeridas:</strong> tipo_mercado, origen, ejercicio, mercado, instrumento, fecha, secuencia, numero_dividendo, tipo_sociedad, valor_historico, isfut_casilla, factor1, factor2, factor3, factor4, factor5, factor6, factor7, factor8, factor9, factor10, factor11, factor12, factor13, factor14, factor15, factor16, factor17, factor18, factor19, factor20, factor21, factor22, factor23, factor24, factor25, factor26, descripcion</p>
+                    <p><strong>Columna opcional:</strong> estado (si no se incluye, se usa 'BORRADOR')</p>
+                    <p><strong>Importante:</strong> Los factores factor1-factor26 deben sumar 1. Si suman más, se marcarán como 'INVÁLIDO' automáticamente.</p>
+                    <p><strong>Nota:</strong> También se aceptan archivos PDF con tablas estructuradas para carga masiva.</p>
+                </div>
+
+                <form id="bulkUploadForm" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="file" class="form-label">Seleccionar Archivo</label>
+                        <input type="file" class="form-control" id="file" name="file" accept=".csv,.xlsx,.xls,.pdf" multiple required>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" id="previewBtn" class="btn btn-primary">Previsualizar</button>
+                    </div>
+                </form>
+
+                <div id="previewSection" class="mt-4" style="display: none;">
+                    <h6>Previsualización de Archivos:</h6>
+                    <div id="previewContainer"></div>
+                    <div class="mt-3">
+                        <button type="button" id="uploadBtn" class="btn btn-success">Cargar Calificaciones</button>
+                        <button type="button" id="cancelPreviewBtn" class="btn btn-secondary">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('previewBtn').addEventListener('click', function() {
+    const fileInput = document.getElementById('file');
+    if (fileInput.files.length === 0) {
+        alert('Por favor, selecciona al menos un archivo.');
+        return;
+    }
+
+    const formData = new FormData();
+    for (let i = 0; i < fileInput.files.length; i++) {
+        formData.append('file', fileInput.files[i]);
+    }
+
+    fetch('{% url "preview_bulk_upload" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.previews && data.previews.length > 0) {
+            const previewContainer = document.getElementById('previewContainer');
+            previewContainer.innerHTML = '';
+
+            data.previews.forEach((preview, index) => {
+                if (preview.error) {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'alert alert-danger';
+                    errorDiv.textContent = `Error en ${preview.filename}: ${preview.error}`;
+                    previewContainer.appendChild(errorDiv);
+                    return;
+                }
+
+                // Crear sección para cada archivo
+                const fileSection = document.createElement('div');
+                fileSection.className = 'mb-4';
+                fileSection.innerHTML = `<h6>Archivo: ${preview.filename}</h6>`;
+
+                // Crear contenedor con scroll horizontal
+                const tableWrapper = document.createElement('div');
+                tableWrapper.style.overflowX = 'auto';
+                tableWrapper.style.maxWidth = '100%';
+
+                const table = document.createElement('table');
+                table.className = 'table table-sm table-bordered';
+
+                // Headers
+                const thead = document.createElement('thead');
+                const headerRow = document.createElement('tr');
+                preview.headers.forEach(header => {
+                    const th = document.createElement('th');
+                    th.textContent = header;
+                    headerRow.appendChild(th);
+                });
+                thead.appendChild(headerRow);
+                table.appendChild(thead);
+
+                // Body
+                const tbody = document.createElement('tbody');
+                preview.rows.forEach(row => {
+                    const tr = document.createElement('tr');
+                    row.forEach(cell => {
+                        const td = document.createElement('td');
+                        td.textContent = cell;
+                        tr.appendChild(td);
+                    });
+                    tbody.appendChild(tr);
+                });
+                table.appendChild(tbody);
+
+                tableWrapper.appendChild(table);
+                fileSection.appendChild(tableWrapper);
+                previewContainer.appendChild(fileSection);
+            });
+
+            document.getElementById('previewSection').style.display = 'block';
+        } else {
+            alert('No se pudieron generar previsualizaciones.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al procesar el archivo.');
+    });
+});
+
+document.getElementById('uploadBtn').addEventListener('click', function() {
+    const form = document.getElementById('bulkUploadForm');
+    const formData = new FormData(form);
+
+    // Mostrar indicador de carga
+    const uploadBtn = document.getElementById('uploadBtn');
+    const originalText = uploadBtn.textContent;
+    uploadBtn.disabled = true;
+    uploadBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Cargando...';
+
+    fetch('{% url "bulk_upload_ajax" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Cerrar modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('bulkUploadModal'));
+            modal.hide();
+
+            // Mostrar mensaje de éxito estilizado
+            showSuccessToast('¡Éxito!', `Se cargaron ${data.count} calificaciones exitosamente.`);
+
+            // Recargar página después de un breve delay
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+        } else {
+            showErrorToast('Error', data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showErrorToast('Error', 'Error al cargar las calificaciones.');
+    })
+    .finally(() => {
+        // Restaurar botón
+        uploadBtn.disabled = false;
+        uploadBtn.innerHTML = originalText;
+    });
+});
+
+document.getElementById('cancelPreviewBtn').addEventListener('click', function() {
+    document.getElementById('previewSection').style.display = 'none';
+});
+
+// Funciones para mostrar toasts estilizados
+function showSuccessToast(title, message) {
+    const toastHtml = `<div class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <strong>${title}</strong><br>${message}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>`;
+    showToast(toastHtml);
+}
+
+function showErrorToast(title, message) {
+    const toastHtml = `
+        <div class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <strong>${title}</strong><br>${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    `;
+    showToast(toastHtml);
+}
+
+function showToast(toastHtml) {
+    // Crear contenedor de toasts si no existe
+    let toastContainer = document.querySelector('.toast-container');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+        toastContainer.style.zIndex = '9999';
+        document.body.appendChild(toastContainer);
+    }
+
+    // Agregar toast
+    const toastElement = document.createElement('div');
+    toastElement.innerHTML = toastHtml;
+    toastContainer.appendChild(toastElement);
+
+    // Inicializar y mostrar toast
+    const toast = new bootstrap.Toast(toastElement.querySelector('.toast'));
+    toast.show();
+
+    // Remover toast después de que se oculte
+    toastElement.addEventListener('hidden.bs.toast', () => {
+        toastElement.remove();
+    });
+}
+</script>
+
+{% include "calificaciones/crear.html" %}
+
+<!-- Modal de Edición Calificación -->
+<div class="modal fade" id="editarCalificacionModal" tabindex="-1" aria-labelledby="editarCalificacionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editarCalificacionModalLabel">Editar Calificación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" id="editarCalificacionForm">
+                    {% csrf_token %}
+                    {% bootstrap_form_errors form %}
+
+                    <!-- Identificación general -->
+                    <h6 class="mt-3 mb-2 fw-bold">Identificación general</h6>
+                    <div class="row g-3 mb-2">
+                        <div class="col-md-3">
+                            <label for="edit_estado" class="form-label">Estado</label>
+                            <select class="form-select" name="estado" id="edit_estado">
+                                <option value="BORRADOR">Borrador</option>
+                                <option value="EN PROCESO">En Proceso</option>
+                                <option value="VIGENTE">Vigente</option>
+                                <option value="ANULADA">Anulada</option>
+                                <option value="INVALIDO">Inválido</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="edit_secuencia" class="form-label">Secuencia</label>
+                            <input type="number" class="form-control" name="secuencia" id="edit_secuencia" min="10000">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="edit_tipo_mercado" class="form-label">Tipo Mercado</label>
+                            <select class="form-select" name="tipo_mercado" id="edit_tipo_mercado">
+                                <option value="ACCIONES">Acciones</option>
+                                <option value="CFI">CFI</option>
+                                <option value="FONDOS_MUTUOS">Fondos Mutuos</option>
+                                <option value="ISIFT">ISIFT</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="edit_origen" class="form-label">Origen</label>
+                            <select class="form-select" name="origen" id="edit_origen">
+                                <option value="CORREDORA">Corredora</option>
+                                <option value="SISTEMA">Sistema</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Instrumento financiero -->
+                    <h6 class="mt-3 mb-2 fw-bold">Instrumento financiero</h6>
+                    <div class="row g-3 mb-2">
+                        <div class="col-md-3">
+                            <label for="edit_mercado" class="form-label">Mercado</label>
+                            <select class="form-select" name="mercado" id="edit_mercado">
+                                <option value="">Seleccionar</option>
+                                <option value="Nacional">Nacional</option>
+                                <option value="Internacional">Internacional</option>
+                                <option value="Extranjero">Extranjero</option>
+                                <option value="Local">Local</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="edit_instrumento" class="form-label">Instrumento</label>
+                            <input type="text" class="form-control" name="instrumento" id="edit_instrumento" autocomplete="off">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="edit_numero_dividendo" class="form-label">Número de dividendo</label>
+                            <input type="number" class="form-control" name="numero_dividendo" id="edit_numero_dividendo" min="0">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="edit_tipo_sociedad" class="form-label">Tipo Sociedad</label>
+                            <select class="form-select" name="tipo_sociedad" id="edit_tipo_sociedad">
+                                <option value="A">Abierta</option>
+                                <option value="C">Cerrada</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row g-3 mb-2">
+                        <div class="col-md-6">
+                            <label for="edit_valor_historico" class="form-label">Valor histórico</label>
+                            <input type="number" class="form-control" name="valor_historico" id="edit_valor_historico" min="0" step="0.01">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit_factor_actualizacion" class="form-label">Factor de Actualización</label>
+                            <input type="number" class="form-control" name="factor_actualizacion" id="edit_factor_actualizacion" step="0.0001" min="0">
+                        </div>
+                    </div>
+
+                    <!-- Fechas y períodos -->
+                    <h6 class="mt-3 mb-2 fw-bold">Fechas y períodos</h6>
+                    <div class="row g-3 mb-2">
+                        <div class="col-md-6">
+                            <label for="edit_fecha" class="form-label">Fecha</label>
+                            <input type="date" class="form-control" name="fecha" id="edit_fecha">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit_ejercicio" class="form-label">Ejercicio</label>
+                            <input type="date" class="form-control" name="ejercicio" id="edit_ejercicio">
+                        </div>
+                    </div>
+
+                    <!-- Complementarios -->
+                    <h6 class="mt-3 mb-2 fw-bold">Complementarios</h6>
+                    <div class="row g-3 mb-2">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="isfut_casilla" id="edit_isfut_casilla">
+                                <label class="form-check-label" for="edit_isfut_casilla">ISFUT</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit_descripcion" class="form-label">Descripción</label>
+                            <textarea class="form-control" name="descripcion" id="edit_descripcion" rows="2" maxlength="1000" style="resize: none;"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Factores en tabla -->
+                    <h6 class="mt-3 mb-2 fw-bold">Factores (1..26)</h6>
+                    <div class="d-flex justify-content-center gap-3 mb-2">
+                        <div id="edit_total-sum-display" class="sum-display">Suma total de factores 1-26: 0.0000</div>
+                    </div>
+                    <div id="edit_error-message" class="text-danger mt-2" style="display: none;"></div>
+                    <table class="factors-table">
+                        <thead>
+                            <tr>
+                                <th>Factor</th>
+                                <th>Valor</th>
+                                <th>Descripción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Factor 1</td>
+                                <td><input type="number" class="form-control" name="factor1" id="edit_factor1" min="0" step="0.0001"></td>
+                                <td>Con crédito por IDPC generados a contar del 01.01.2017</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 2</td>
+                                <td><input type="number" class="form-control" name="factor2" id="edit_factor2" min="0" step="0.0001"></td>
+                                <td>Con crédito por IDPC acumulados hasta el 31.12.2016</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 3</td>
+                                <td><input type="number" class="form-control" name="factor3" id="edit_factor3" min="0" step="0.0001"></td>
+                                <td>Con derecho a crédito por pago de IDPC voluntario</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 4</td>
+                                <td><input type="number" class="form-control" name="factor4" id="edit_factor4" min="0" step="0.0001"></td>
+                                <td>Sin derecho a crédito</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 5</td>
+                                <td><input type="number" class="form-control" name="factor5" id="edit_factor5" min="0" step="0.0001"></td>
+                                <td>Rentas provenientes del registro RAP y Diferencia Inicial de sociedad acogida al ex Art. 14 TER A) LIR</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 6</td>
+                                <td><input type="number" class="form-control" name="factor6" id="edit_factor6" min="0" step="0.0001"></td>
+                                <td>Otras rentas percibidas Sin Prioridad en su orden de imputación</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 7</td>
+                                <td><input type="number" class="form-control" name="factor7" id="edit_factor7" min="0" step="0.0001"></td>
+                                <td>Exceso Distribuciones Desproporcionadas (N°9 Art.14 A)</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 8</td>
+                                <td><input type="number" class="form-control" name="factor8" id="edit_factor8" min="0" step="0.0001"></td>
+                                <td>Utilidades afectadas con impuesto sustitutivo al FUT (ISFUT) Ley N°20.780</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 9</td>
+                                <td><input type="number" class="form-control" name="factor9" id="edit_factor9" min="0" step="0.0001"></td>
+                                <td>Rentas generadas hasta el 31.12.1983 y/o utilidades afectadas con impuesto sustitutivo al FUT (ISFUT) LEY N°21.210</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 10</td>
+                                <td><input type="number" class="form-control" name="factor10" id="edit_factor10" min="0" step="0.0001"></td>
+                                <td>Rentas Exentas de Impuesto Global Complementario (IGC) (Artículo 11, Ley 18.401), Afectas a Impuesto Adicional</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 11</td>
+                                <td><input type="number" class="form-control" name="factor11" id="edit_factor11" min="0" step="0.0001"></td>
+                                <td>Rentas Exentas de Impuesto Global Complementario (IGC) y/o Impuesto Adicional (IA)</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 12</td>
+                                <td><input type="number" class="form-control" name="factor12" id="edit_factor12" min="0" step="0.0001"></td>
+                                <td>Ingresos No Constitutivos de Renta</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 13</td>
+                                <td><input type="number" class="form-control" name="factor13" id="edit_factor13" min="0" step="0.0001"></td>
+                                <td>No Sujetos a Restitución generados Hasta el 31.12.2019 Sin derecho</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 14</td>
+                                <td><input type="number" class="form-control" name="factor14" id="edit_factor14" min="0" step="0.0001"></td>
+                                <td>No Sujetos a Restitución generados Hasta el 31.12.2019 Con derecho</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 15</td>
+                                <td><input type="number" class="form-control" name="factor15" id="edit_factor15" min="0" step="0.0001"></td>
+                                <td>No Sujetos a Restitución generados a contar del 01.01.2020 Sin derecho</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 16</td>
+                                <td><input type="number" class="form-control" name="factor16" id="edit_factor16" min="0" step="0.0001"></td>
+                                <td>No Sujetos a Restitución generados a contar del 01.01.2020 Con derecho</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 17</td>
+                                <td><input type="number" class="form-control" name="factor17" id="edit_factor17" min="0" step="0.0001"></td>
+                                <td>Sujeto a restitución sin derecho</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 18</td>
+                                <td><input type="number" class="form-control" name="factor18" id="edit_factor18" min="0" step="0.0001"></td>
+                                <td>Sujeto a restitución Con derecho</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 19</td>
+                                <td><input type="number" class="form-control" name="factor19" id="edit_factor19" min="0" step="0.0001"></td>
+                                <td>Sujeto a restitución Sin derecho</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 20</td>
+                                <td><input type="number" class="form-control" name="factor20" id="edit_factor20" min="0" step="0.0001"></td>
+                                <td>Sujeto a restitución Con derecho</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 21</td>
+                                <td><input type="number" class="form-control" name="factor21" id="edit_factor21" min="0" step="0.0001"></td>
+                                <td>Crédito IPE</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 22</td>
+                                <td><input type="number" class="form-control" name="factor22" id="edit_factor22" min="0" step="0.0001"></td>
+                                <td>Asociados a Rentas Afectas, sin derecho</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 23</td>
+                                <td><input type="number" class="form-control" name="factor23" id="edit_factor23" min="0" step="0.0001"></td>
+                                <td>Asociados a Rentas Afectas, Con derecho</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 24</td>
+                                <td><input type="number" class="form-control" name="factor24" id="edit_factor24" min="0" step="0.0001"></td>
+                                <td>Asociados a Rentas Exentas (artículo 11, Ley 18.401), sin derecho</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 25</td>
+                                <td><input type="number" class="form-control" name="factor25" id="edit_factor25" min="0" step="0.0001"></td>
+                                <td>Asociados a Rentas Exentas (artículo 11, Ley 18.401), con derecho</td>
+                            </tr>
+                            <tr>
+                                <td>Factor 26</td>
+                                <td><input type="number" class="form-control" name="factor26" id="edit_factor26" min="0" step="0.0001"></td>
+                                <td>Crédito por IPE</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="edit_calcular-btn" class="btn btn-secondary btn-sm">Retornar</button>
+                <button type="button" id="edit_calcular-factores-btn" class="btn btn-info btn-sm">Calcular Factores</button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary btn-sm" id="edit_submit_btn">Actualizar Calificación</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Función para abrir el modal de edición y cargar datos
+function openEditModal(calificacionId) {
+    // Mostrar primero el modal con el estado de carga
+    const modalElement = document.getElementById('editarCalificacionModal');
+    const modal = new bootstrap.Modal(modalElement);
+    modal.show();
+
+    // Establecer ID de clasificación en el modal
+    modalElement.setAttribute('data-calificacion-id', calificacionId);
+
+    // Mostrar carga en el cuerpo del modal
+    const modalBody = modalElement.querySelector('.modal-body');
+    const originalContent = modalBody.innerHTML;
+    modalBody.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Cargando...</span></div><p class="mt-2">Cargando datos de la calificación...</p></div>';
+
+    fetch('/calificaciones/?edit=' + calificacionId, {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            // Restaurar contenido original
+            modalBody.innerHTML = originalContent;
+
+            // Rellenar campos de formulario
+            document.getElementById('edit_estado').value = data.calificacion.estado;
+            document.getElementById('edit_secuencia').value = data.calificacion.secuencia;
+            document.getElementById('edit_tipo_mercado').value = data.calificacion.tipo_mercado;
+            document.getElementById('edit_origen').value = data.calificacion.origen;
+            document.getElementById('edit_mercado').value = data.calificacion.mercado;
+            document.getElementById('edit_instrumento').value = data.calificacion.instrumento;
+            document.getElementById('edit_numero_dividendo').value = data.calificacion.numero_dividendo;
+            document.getElementById('edit_tipo_sociedad').value = data.calificacion.tipo_sociedad;
+            document.getElementById('edit_valor_historico').value = data.calificacion.valor_historico;
+            document.getElementById('edit_factor_actualizacion').value = data.calificacion.factor_actualizacion;
+            document.getElementById('edit_fecha').value = data.calificacion.fecha;
+            document.getElementById('edit_ejercicio').value = data.calificacion.ejercicio;
+            document.getElementById('edit_isfut_casilla').checked = data.calificacion.isfut_casilla;
+            document.getElementById('edit_descripcion').value = data.calificacion.descripcion;
+
+            // Factores de población
+            for (let i = 1; i <= 26; i++) {
+                document.getElementById(`edit_factor${i}`).value = data.calificacion[`factor${i}`];
+            }
+
+            // Actualizar suma total
+            editCalculateTotalSum();
+        } else {
+            modal.hide();
+            showErrorToast('Error', data.error || 'No se pudo cargar la calificación para editar.');
+        }
+    })
+    .catch(error => {
+        console.error('Error loading calificación:', error);
+        modal.hide();
+        showErrorToast('Error', `Error al cargar la calificación: ${error.message}`);
+    });
+}
+
+// Función para calcular la suma total del modal de edición
+function editCalculateTotalSum() {
+    let totalSum = 0;
+    let hasError = false;
+    const errorMessage = document.getElementById('edit_error-message');
+    errorMessage.style.display = 'none';
+    errorMessage.textContent = '';
+
+    for (let i = 1; i <= 26; i++) {
+        const input = document.getElementById('edit_factor' + i);
+        if (input && input.value.trim() !== '') {
+            const value = parseFloat(input.value);
+            if (isNaN(value)) {
+                hasError = true;
+                errorMessage.textContent = `Error: Valor no numérico en Factor ${i}`;
+                errorMessage.style.display = 'block';
+                break;
+            }
+            totalSum += value;
+        }
+    }
+
+    if (!hasError) {
+        const totalSumDisplay = document.getElementById('edit_total-sum-display');
+        totalSumDisplay.textContent = `Suma total de factores 1-26: ${totalSum.toFixed(4)}`;
+    }
+}
+
+// Detectores de eventos para el modo de edición
+document.getElementById('edit_calcular-btn').addEventListener('click', function() {
+    // Restablecer todos los factores a 0,0000
+    for (let i = 1; i <= 26; i++) {
+        const factorInput = document.getElementById('edit_factor' + i);
+        if (factorInput) {
+            factorInput.value = '0.0000';
+        }
+    }
+    // Actualizar la visualización de la suma total
+    editCalculateTotalSum();
+});
+
+document.getElementById('edit_calcular-factores-btn').addEventListener('click', function() {
+    editCalculateTotalSum();
+});
+
+// Manejar el envío del formulario de edición
+document.getElementById('edit_submit_btn').addEventListener('click', function() {
+    const form = document.getElementById('editarCalificacionForm');
+    const formData = new FormData(form);
+
+    // Mostrar estado de carga
+    const submitBtn = this;
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Actualizando...';
+
+    const calificacionId = document.getElementById('editarCalificacionModal').getAttribute('data-calificacion-id');
+    fetch('/calificaciones/' + calificacionId + '/editar/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success === false) {
+            showErrorToast('Error de validación', data.error || 'Por favor, revise los campos del formulario.');
+        } else {
+            // Actualizar la fila de la tabla dinámicamente
+            const row = document.querySelector(`tr[data-id="${calificacionId}"]`);
+            if (row) {
+                const cells = row.querySelectorAll('td');
+                cells[0].textContent = data.calificacion.tipo_mercado_display;
+                cells[1].textContent = data.calificacion.origen_display;
+                cells[2].textContent = data.calificacion.mercado;
+                cells[3].textContent = data.calificacion.instrumento;
+                cells[4].textContent = data.calificacion.secuencia;
+                cells[5].textContent = data.calificacion.numero_dividendo;
+                cells[6].textContent = data.calificacion.tipo_sociedad;
+                cells[7].textContent = data.calificacion.fecha;
+                cells[8].textContent = data.calificacion.valor_historico;
+                cells[9].textContent = data.calificacion.ejercicio;
+                cells[10].textContent = data.calificacion.descripcion;
+                cells[11].innerHTML = data.calificacion.isfut_casilla === 'Sí' ? '<span class="badge bg-success">Sí</span>' : '<span class="badge bg-secondary">No</span>';
+                cells[12].textContent = data.calificacion.factor_actualizacion;
+                cells[13].innerHTML = data.calificacion.estado_badge;
+                cells[14].textContent = data.calificacion.actualizado_en;
+            }
+
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editarCalificacionModal'));
+            modal.hide();
+            showSuccessToast('¡Éxito!', 'Calificación actualizada exitosamente.');
+            location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showErrorToast('Error', 'Error de conexión. Por favor, inténtelo nuevamente.');
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    });
+});
+
+// Actualización al cargar el modal de edición
+editCalculateTotalSum();
+</script>
+{% endblock %}
