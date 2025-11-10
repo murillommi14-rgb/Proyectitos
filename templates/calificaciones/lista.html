@@ -19,6 +19,9 @@
                     <button type="button" class="btn btn-secondary btn-sm me-1" data-bs-toggle="modal" data-bs-target="#bulkUploadModal">
                         <i class="fas fa-upload me-1"></i>Carga de Calificaciones
                     </button>
+                    <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#dashboardModal">
+                        <i class="fas fa-chart-line me-1"></i>Dashboard
+                    </button>
                 </div>
             </div>
 
@@ -394,6 +397,7 @@ function showToast(toastHtml) {
 </script>
 
 {% include "calificaciones/crear.html" %}
+{% include "calificaciones/dashboard.html" %}
 
 <!-- Modal de Edición Calificación -->
 <div class="modal fade" id="editarCalificacionModal" tabindex="-1" aria-labelledby="editarCalificacionModalLabel" aria-hidden="true">

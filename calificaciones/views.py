@@ -2,7 +2,7 @@
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, FormView
 from django.http import HttpResponse, JsonResponse
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
@@ -478,6 +478,79 @@ def preview_bulk_upload(request):
             previews.append({'filename': file.name, 'error': f'Error al procesar el archivo: {str(e)}'})
 
     return JsonResponse({'previews': previews})
+
+@login_required
+def dashboard_data(request):
+    # Obtener filtros de la solicitud
+    tipo_mercado = request.GET.get('tipo_mercado')
+    origen = request.GET.get('origen')
+    ejercicio = request.GET.get('ejercicio')
+
+    # Base queryset
+    queryset = Calificacion.objects.all()
+
+    # Aplicar filtros
+    if tipo_mercado:
+        queryset = queryset.filter(tipo_mercado=tipo_mercado)
+    if origen:
+        queryset = queryset.filter(origen=origen)
+    if ejercicio:
+        queryset = queryset.filter(ejercicio__year=ejercicio)
+
+    # Métricas
+    total_calificaciones = queryset.count()
+    vigentes = queryset.filter(estado='VIGENTE').count()
+    en_proceso = queryset.filter(estado='EN PROCESO').count()
+    invalidas = queryset.filter(estado='INVALIDO').count()
+
+    # Gráficos
+    tipo_mercado_counts = queryset.values('tipo_mercado').annotate(count=Count('tipo_mercado')).order_by('tipo_mercado')
+    estado_counts = queryset.values('estado').annotate(count=Count('estado')).order_by('estado')
+
+    # Últimas modificaciones (últimas 10)
+    recent_changes = queryset.order_by('-actualizado_en')[:10]
+
+    # Preparar datos para respuesta
+    data = {
+        'metrics': {
+            'total': total_calificaciones,
+            'vigentes': vigentes,
+            'en_proceso': en_proceso,
+            'invalidas': invalidas,
+        },
+        'charts': {
+            'tipo_mercado': {
+                'labels': [item['tipo_mercado'] for item in tipo_mercado_counts],
+                'data': [item['count'] for item in tipo_mercado_counts],
+            },
+            'estado': {
+                'labels': [item['estado'] for item in estado_counts],
+                'data': [item['count'] for item in estado_counts],
+            },
+        },
+        'recent_changes': [
+            {
+                'tipo_mercado_display': c.get_tipo_mercado_display(),
+                'origen_display': c.get_origen_display(),
+                'mercado': c.mercado,
+                'instrumento': c.instrumento,
+                'secuencia': c.secuencia,
+                'numero_dividendo': c.numero_dividendo,
+                'tipo_sociedad': c.tipo_sociedad,
+                'fecha': c.fecha,
+                'valor_historico': float(c.valor_historico),
+                'ejercicio': c.ejercicio,
+                'descripcion': c.descripcion,
+                'isfut_casilla': c.isfut_casilla,
+                'factor_actualizacion': float(c.factor_actualizacion),
+                'estado': c.estado,
+                'actualizado_en': c.actualizado_en,
+            }
+            for c in recent_changes
+        ]
+    }
+
+    return JsonResponse(data)
 
 @login_required
 def bulk_upload_ajax(request):

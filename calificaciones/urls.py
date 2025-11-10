@@ -1,6 +1,6 @@
 # rutas del módulo calificaciones
 from django.urls import path
-from .views import CalificacionListView, CalificacionCreateView, CalificacionUpdateView, CalificacionDeleteView, export_excel, export_pdf, BulkUploadView, download_template_csv, download_template_xlsx, download_template_pdf, preview_bulk_upload, bulk_upload_ajax
+from .views import CalificacionListView, CalificacionCreateView, CalificacionUpdateView, CalificacionDeleteView, export_excel, export_pdf, BulkUploadView, download_template_csv, download_template_xlsx, download_template_pdf, preview_bulk_upload, bulk_upload_ajax, dashboard_data
 
 app_name = 'calificaciones'
 
@@ -17,4 +17,5 @@ urlpatterns = [
     path("descargar-plantilla-pdf/", download_template_pdf, name="download_template_pdf"),
     path("preview_bulk_upload/", preview_bulk_upload, name="preview_bulk_upload"),
     path("bulk_upload_ajax/", bulk_upload_ajax, name="bulk_upload_ajax"),
+    path("dashboard-data/", dashboard_data, name="dashboard_data"),
 ]
